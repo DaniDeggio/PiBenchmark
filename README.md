@@ -1,99 +1,99 @@
 # PiBenchmark
 
-Benchmark per misurare il tempo necessario a calcolare `N` cifre decimali di π.
+A benchmark tool to measure how long it takes to compute `N` decimal digits of π.
 
-Sono incluse due implementazioni:
+Two implementations are included:
 - Python: `benchmark_pi.py`
 - C++: `benchmark_pi.cpp`
 
-Supporta sia esecuzione `SingleCore` sia `MultiCore` tramite processi multipli.
+It supports both `SingleCore` and `MultiCore` execution using multiple processes/workers.
 
-## Requisiti
+## Requirements
 
-- Python 3.10+ (testato su Python 3.13)
-- Compilatore C++17 (es. `g++`)
+- Python 3.10+ (tested on Python 3.13)
+- C++17 compiler (for example `g++`)
 
 ## Makefile
 
-Sono disponibili target rapidi:
+Available quick targets:
 
-- `make cpp`: compila il binario C++ (`benchmark_pi_cpp`)
-- `make python-check`: verifica sintassi Python (`py_compile`)
-- `make test`: esegue `cpp` + `python-check`
-- `make compare`: confronta lo stesso benchmark su Python e C++
-- `make run-cpp`: esegue un benchmark C++ di esempio
-- `make run-py`: esegue un benchmark Python di esempio
-- `make clean`: rimuove il binario C++
+- `make cpp`: build the C++ binary (`benchmark_pi_cpp`)
+- `make python-check`: run Python syntax check (`py_compile`)
+- `make test`: run `cpp` + `python-check`
+- `make compare`: compare the same benchmark on Python and C++
+- `make run-cpp`: run an example C++ benchmark
+- `make run-py`: run an example Python benchmark
+- `make clean`: remove the C++ binary
 
-Esempio confronto:
+Comparison example:
 
 ```bash
 make compare DIGITS=10000 WORKERS=4 REPEATS=7 WARMUP=1
 ```
 
-Il confronto usa `compare_benchmarks.py` e stampa media/min/max/deviazione standard per entrambe le implementazioni, più speedup medio C++ vs Python.
+The comparison uses `compare_benchmarks.py` and prints avg/min/max/standard deviation for both implementations, plus the average C++ vs Python speedup.
 
-## Versione C++
+## C++ Version
 
-Compilazione:
+Build:
 
 ```bash
 g++ -O2 -std=c++17 -pthread benchmark_pi.cpp -o benchmark_pi_cpp
 ```
 
-Esempio Benchmark MultiCore:
+MultiCore benchmark example:
 
 ```bash
 ./benchmark_pi_cpp 10000 --mode Benchmark --workers 8
 ```
 
-Esempio StressTest MultiCore:
+MultiCore StressTest example:
 
 ```bash
 ./benchmark_pi_cpp 5000 --mode StressTest --workers 8 --print-every 50
 ```
 
-Le opzioni CLI sono allineate con la versione Python (`--mode`, `--show-pi`, `--workers`, `--print-every`).
+CLI options are aligned with the Python version (`--mode`, `--show-pi`, `--workers`, `--print-every`).
 
-## Versione Python
+## Python Version
 
-Dalla cartella del progetto:
+From the project folder:
 
 ```bash
 python3 benchmark_pi.py 10000 --mode Benchmark
 ```
 
-Esempio MultiCore (usa 8 processi):
+MultiCore example (uses 8 processes):
 
 ```bash
 python3 benchmark_pi.py 10000 --mode Benchmark --workers 8
 ```
 
-### Modalità disponibili
+### Available Modes
 
-- `Benchmark`: esegue una sola misurazione.
-- `StressTest`: ripete il benchmark in loop finché non viene interrotto (`Ctrl+C`), con batch paralleli se `--workers > 1`.
+- `Benchmark`: runs a single measurement.
+- `StressTest`: repeats benchmark batches until interrupted (`Ctrl+C`), using parallel batches when `--workers > 1`.
 
-Alla chiusura dello `StressTest` viene mostrato un riepilogo con numero batch, totale calcoli, tempo medio/min/max batch, durata totale e throughput (`calcoli/s`).
+When `StressTest` stops, a summary is shown with total batches, total calculations, avg/min/max batch time, total duration, and throughput (`calculations/s`).
 
-Durante l'esecuzione dello `StressTest` viene mostrato anche il throughput live (`calcoli/s`) ogni 10 batch (oltre al primo).
+During `StressTest`, live throughput (`calculations/s`) is printed every 10 batches (plus the first batch).
 
-Esempio StressTest:
+StressTest example:
 
 ```bash
 python3 benchmark_pi.py 5000 --mode StressTest
 ```
 
-Esempio StressTest con stampa ogni 50 batch:
+StressTest example printing every 50 batches:
 
 ```bash
 python3 benchmark_pi.py 5000 --mode StressTest --workers 8 --print-every 50
 ```
 
-### Opzioni
+### Options
 
-- `digits` (obbligatorio): numero di cifre decimali da calcolare.
-- `--mode`: `Benchmark` oppure `StressTest` (default: `Benchmark`).
-- `--show-pi`: mostra il valore di π calcolato.
-- `--workers`: numero di processi da usare (default: numero di core logici).
-- `--print-every`: ogni quanti batch stampare il progresso nello `StressTest` (default: `10`).
+- `digits` (required): number of decimal digits to compute.
+- `--mode`: `Benchmark` or `StressTest` (default: `Benchmark`).
+- `--show-pi`: show the computed π value.
+- `--workers`: number of processes/workers to use (default: number of logical CPU cores).
+- `--print-every`: print progress every N batches in `StressTest` (default: `10`).

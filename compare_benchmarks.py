@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-ELAPSED_RE = re.compile(r"in\s+([0-9]+(?:\.[0-9]+)?)\s+secondi")
+ELAPSED_RE = re.compile(r"in\s+([0-9]+(?:\.[0-9]+)?)\s+seconds")
 
 
 @dataclass
@@ -40,7 +40,7 @@ class RunStats:
 def parse_elapsed(output: str) -> float:
     match = ELAPSED_RE.search(output)
     if not match:
-        raise ValueError("Impossibile estrarre il tempo dal comando eseguito")
+        raise ValueError("Unable to extract elapsed time from command output")
     return float(match.group(1))
 
 
@@ -48,7 +48,7 @@ def run_and_measure(command: list[str], cwd: Path) -> float:
     result = subprocess.run(command, cwd=cwd, capture_output=True, text=True)
     if result.returncode != 0:
         raise RuntimeError(
-            "Comando fallito:\n"
+            "Command failed:\n"
             f"{' '.join(command)}\n"
             f"stdout:\n{result.stdout}\n"
             f"stderr:\n{result.stderr}"
@@ -79,31 +79,31 @@ def benchmark_many(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Confronta lo stesso benchmark tra implementazione Python e C++"
+        description="Compare the same benchmark between Python and C++ implementations"
     )
-    parser.add_argument("digits", type=int, help="Numero di cifre decimali di Pi")
-    parser.add_argument("--workers", type=int, default=1, help="Numero di workers")
-    parser.add_argument("--repeats", type=int, default=5, help="Numero di run misurati")
-    parser.add_argument("--warmup", type=int, default=1, help="Numero di warmup per runtime")
+    parser.add_argument("digits", type=int, help="Number of decimal digits of Pi")
+    parser.add_argument("--workers", type=int, default=1, help="Number of workers")
+    parser.add_argument("--repeats", type=int, default=5, help="Number of measured runs")
+    parser.add_argument("--warmup", type=int, default=1, help="Number of warmup runs")
     parser.add_argument(
         "--python-exe",
         default=sys.executable,
-        help="Interprete Python da usare per lanciare benchmark_pi.py",
+        help="Python interpreter used to run benchmark_pi.py",
     )
     parser.add_argument(
         "--python-script",
         default="benchmark_pi.py",
-        help="Path allo script Python benchmark",
+        help="Path to the Python benchmark script",
     )
     parser.add_argument(
         "--cpp-bin",
         default="./benchmark_pi_cpp",
-        help="Path al binario C++ benchmark",
+        help="Path to the C++ benchmark binary",
     )
     parser.add_argument(
         "--cwd",
         default=".",
-        help="Directory di lavoro da usare per i comandi",
+        help="Working directory used to execute commands",
     )
     return parser.parse_args()
 
@@ -112,13 +112,13 @@ def main() -> None:
     args = parse_args()
 
     if args.digits < 1:
-        raise ValueError("digits deve essere >= 1")
+        raise ValueError("digits must be >= 1")
     if args.workers < 1:
-        raise ValueError("workers deve essere >= 1")
+        raise ValueError("workers must be >= 1")
     if args.repeats < 1:
-        raise ValueError("repeats deve essere >= 1")
+        raise ValueError("repeats must be >= 1")
     if args.warmup < 0:
-        raise ValueError("warmup deve essere >= 0")
+        raise ValueError("warmup must be >= 0")
 
     cwd = Path(args.cwd).resolve()
     python_script = (cwd / Path(args.python_script)).resolve()
@@ -143,7 +143,7 @@ def main() -> None:
         str(args.workers),
     ]
 
-    print("Confronto benchmark in corso...")
+    print("Running benchmark comparison...")
     print(f"- digits: {args.digits}")
     print(f"- workers: {args.workers}")
     print(f"- repeats: {args.repeats}")
@@ -167,7 +167,7 @@ def main() -> None:
 
     speedup = python_stats.avg / cpp_stats.avg if cpp_stats.avg > 0 else float("inf")
 
-    print("\nRisultati (secondi):")
+    print("\nResults (seconds):")
     print("Impl    Avg        Min        Max        StdDev")
     print(
         f"Python  {python_stats.avg:9.6f}  {python_stats.min:9.6f}  "
@@ -177,7 +177,7 @@ def main() -> None:
         f"C++     {cpp_stats.avg:9.6f}  {cpp_stats.min:9.6f}  "
         f"{cpp_stats.max:9.6f}  {cpp_stats.stdev:9.6f}"
     )
-    print(f"\nSpeedup medio C++ vs Python: {speedup:.2f}x")
+    print(f"\nAverage C++ vs Python speedup: {speedup:.2f}x")
 
 
 if __name__ == "__main__":

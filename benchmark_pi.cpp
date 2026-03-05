@@ -70,7 +70,7 @@ public:
 
     void sub(const BigInt& other) {
         if (compare(other) < 0) {
-            throw std::runtime_error("Sottrazione BigInt negativa non supportata");
+            throw std::runtime_error("Negative BigInt subtraction is not supported");
         }
 
         std::int64_t borrow = 0;
@@ -116,7 +116,7 @@ public:
 
     std::uint32_t div_uint(std::uint32_t divisor) {
         if (divisor == 0) {
-            throw std::invalid_argument("Divisione per zero");
+            throw std::invalid_argument("Division by zero");
         }
 
         std::uint64_t remainder = 0;
@@ -198,7 +198,7 @@ BigInt arctan_inv(unsigned int inv_x, const BigInt& scale) {
 
         const std::uint64_t odd = 2 * n + 1;
         if (odd > std::numeric_limits<std::uint32_t>::max()) {
-            throw std::runtime_error("Overflow nel divisore della serie arctan");
+            throw std::runtime_error("Overflow in arctan series divisor");
         }
 
         BigInt frac = term;
@@ -231,7 +231,7 @@ std::string format_scaled_pi(const BigInt& scaled_pi, int digits) {
 
 std::string calculate_pi_digits(int digits) {
     if (digits < 1) {
-        throw std::invalid_argument("Il numero di cifre deve essere >= 1");
+        throw std::invalid_argument("The number of digits must be >= 1");
     }
 
     const int guard_digits = 10;
@@ -243,7 +243,7 @@ std::string calculate_pi_digits(int digits) {
     b.mul_uint(4);
 
     if (a.compare(b) < 0) {
-        throw std::runtime_error("Errore numerico: risultato negativo inatteso");
+        throw std::runtime_error("Numeric error: unexpected negative result");
     }
 
     a.sub(b);
@@ -289,7 +289,7 @@ BatchResult run_parallel_batch(int digits, int workers) {
 
 BenchmarkResult run_single_benchmark(int digits, bool show_pi, int workers) {
     if (workers < 1) {
-        throw std::invalid_argument("workers deve essere >= 1");
+        throw std::invalid_argument("workers must be >= 1");
     }
 
     if (workers == 1) {
@@ -299,7 +299,7 @@ BenchmarkResult run_single_benchmark(int digits, bool show_pi, int workers) {
         double elapsed = std::chrono::duration<double>(end - start).count();
 
         if (show_pi) {
-            std::cout << "π (" << digits << " cifre):\n" << pi_value << "\n";
+            std::cout << "π (" << digits << " digits):\n" << pi_value << "\n";
         }
 
         BenchmarkResult result;
@@ -310,13 +310,13 @@ BenchmarkResult run_single_benchmark(int digits, bool show_pi, int workers) {
     }
 
     if (show_pi) {
-        std::cout << "π (" << digits << " cifre):\n" << calculate_pi_digits(digits) << "\n";
+        std::cout << "π (" << digits << " digits):\n" << calculate_pi_digits(digits) << "\n";
     }
 
     BatchResult batch = run_parallel_batch(digits, workers);
     std::cout << "MultiCore Benchmark (" << workers << " workers): "
               << "batch in " << std::fixed << std::setprecision(6) << batch.wall_seconds << " s"
-              << " | tempo task medio: " << batch.avg_task_seconds << " s\n";
+              << " | average task time: " << batch.avg_task_seconds << " s\n";
 
     BenchmarkResult result;
     result.digits = digits;
@@ -327,17 +327,17 @@ BenchmarkResult run_single_benchmark(int digits, bool show_pi, int workers) {
 
 void run_stress_test(int digits, bool show_pi, int workers, int print_every) {
     if (workers < 1) {
-        throw std::invalid_argument("workers deve essere >= 1");
+        throw std::invalid_argument("workers must be >= 1");
     }
     if (print_every < 1) {
-        throw std::invalid_argument("print_every deve essere >= 1");
+        throw std::invalid_argument("print_every must be >= 1");
     }
 
-    std::cout << "Modalità StressTest avviata (workers: " << workers
-              << "). Premi Ctrl+C per fermare.\n";
+    std::cout << "StressTest mode started (workers: " << workers
+              << "). Press Ctrl+C to stop.\n";
 
     if (show_pi) {
-        std::cout << "π (" << digits << " cifre):\n" << calculate_pi_digits(digits) << "\n";
+        std::cout << "π (" << digits << " digits):\n" << calculate_pi_digits(digits) << "\n";
     }
 
     auto stress_start = std::chrono::steady_clock::now();
@@ -364,14 +364,14 @@ void run_stress_test(int digits, bool show_pi, int workers, int print_every) {
         if (batch_iteration == 1 || batch_iteration % print_every == 0) {
             std::cout << "Batch " << batch_iteration << ": "
                       << std::fixed << std::setprecision(6) << batch.wall_seconds << " s "
-                      << "(media batch: " << avg_batch << " s, "
-                      << "task medio: " << batch.avg_task_seconds << " s, "
+                      << "(batch avg: " << avg_batch << " s, "
+                      << "task avg: " << batch.avg_task_seconds << " s, "
                       << "throughput: " << std::setprecision(2) << live_throughput
-                      << " calcoli/s)\n";
+                      << " calculations/s)\n";
         }
     }
 
-    std::cout << "\nStressTest interrotto dall'utente.\n";
+    std::cout << "\nStressTest interrupted by user.\n";
     if (batch_iteration > 0) {
         double total_elapsed = std::chrono::duration<double>(
                                    std::chrono::steady_clock::now() - stress_start)
@@ -379,22 +379,22 @@ void run_stress_test(int digits, bool show_pi, int workers, int print_every) {
         long long total_calculations = static_cast<long long>(batch_iteration) * workers;
         double throughput = total_elapsed > 0.0 ? total_calculations / total_elapsed : 0.0;
 
-        std::cout << "Totale batch: " << batch_iteration
-                  << " | Totale calcoli: " << total_calculations
-                  << " | Tempo medio batch: " << std::fixed << std::setprecision(6)
+        std::cout << "Total batches: " << batch_iteration
+                  << " | Total calculations: " << total_calculations
+                  << " | Average batch time: " << std::fixed << std::setprecision(6)
                   << (total_batch_time / static_cast<double>(batch_iteration)) << " s"
                   << " | Min batch: " << min_batch_time << " s"
                   << " | Max batch: " << max_batch_time << " s\n";
 
-        std::cout << "Durata totale: " << std::fixed << std::setprecision(3)
+        std::cout << "Total duration: " << std::fixed << std::setprecision(3)
                   << total_elapsed << " s"
                   << " | Throughput: " << std::setprecision(2) << throughput
-                  << " calcoli/s\n";
+                  << " calculations/s\n";
     }
 }
 
 void print_usage(const char* program_name) {
-    std::cout << "Uso:\n"
+    std::cout << "Usage:\n"
               << "  " << program_name
               << " <digits> [--mode Benchmark|StressTest] [--show-pi]"
               << " [--workers N] [--print-every N]\n";
@@ -422,7 +422,7 @@ Options parse_args(int argc, char** argv) {
 
         if (arg == "--mode") {
             if (i + 1 >= argc) {
-                throw std::invalid_argument("Manca valore per --mode");
+                throw std::invalid_argument("Missing value for --mode");
             }
             opts.mode = argv[++i];
             continue;
@@ -430,7 +430,7 @@ Options parse_args(int argc, char** argv) {
 
         if (arg == "--workers") {
             if (i + 1 >= argc) {
-                throw std::invalid_argument("Manca valore per --workers");
+                throw std::invalid_argument("Missing value for --workers");
             }
             opts.workers = std::stoi(argv[++i]);
             continue;
@@ -438,33 +438,33 @@ Options parse_args(int argc, char** argv) {
 
         if (arg == "--print-every") {
             if (i + 1 >= argc) {
-                throw std::invalid_argument("Manca valore per --print-every");
+                throw std::invalid_argument("Missing value for --print-every");
             }
             opts.print_every = std::stoi(argv[++i]);
             continue;
         }
 
         if (!arg.empty() && arg[0] == '-') {
-            throw std::invalid_argument("Argomento sconosciuto: " + arg);
+            throw std::invalid_argument("Unknown argument: " + arg);
         }
 
         if (opts.digits != -1) {
-            throw std::invalid_argument("Specifica solo un valore per <digits>");
+            throw std::invalid_argument("Specify only one value for <digits>");
         }
         opts.digits = std::stoi(arg);
     }
 
     if (opts.digits < 1) {
-        throw std::invalid_argument("digits deve essere >= 1");
+        throw std::invalid_argument("digits must be >= 1");
     }
     if (opts.mode != "Benchmark" && opts.mode != "StressTest") {
-        throw std::invalid_argument("--mode deve essere Benchmark o StressTest");
+        throw std::invalid_argument("--mode must be Benchmark or StressTest");
     }
     if (opts.workers < 1) {
-        throw std::invalid_argument("--workers deve essere >= 1");
+        throw std::invalid_argument("--workers must be >= 1");
     }
     if (opts.print_every < 1) {
-        throw std::invalid_argument("--print-every deve essere >= 1");
+        throw std::invalid_argument("--print-every must be >= 1");
     }
 
     return opts;
@@ -483,12 +483,12 @@ int main(int argc, char** argv) {
         }
 
         BenchmarkResult result = run_single_benchmark(args.digits, args.show_pi, args.workers);
-        std::cout << "Benchmark completato: " << result.digits << " cifre in "
+        std::cout << "Benchmark completed: " << result.digits << " digits in "
                   << std::fixed << std::setprecision(6) << result.elapsed_seconds
-                  << " secondi (workers: " << args.workers << ")\n";
+                  << " seconds (workers: " << args.workers << ")\n";
         return 0;
     } catch (const std::exception& ex) {
-        std::cerr << "Errore: " << ex.what() << "\n";
+        std::cerr << "Error: " << ex.what() << "\n";
         print_usage(argv[0]);
         return 1;
     }
