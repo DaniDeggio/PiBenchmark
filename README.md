@@ -25,6 +25,8 @@ Available quick targets:
 - `make run-py`: run an example Python benchmark
 - `make clean`: remove the C++ binary
 
+Default `make compare` values are: `DIGITS=7000`, `WORKERS=2`, `REPEATS=6`, `WARMUP=2`.
+
 Comparison example:
 
 ```bash

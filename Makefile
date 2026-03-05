@@ -2,10 +2,10 @@ CXX := g++
 CXXFLAGS := -O2 -std=c++17 -pthread
 PYTHON ?= python3
 
-DIGITS ?= 5000
+DIGITS ?= 7000
 WORKERS ?= 2
-REPEATS ?= 5
-WARMUP ?= 1
+REPEATS ?= 6
+WARMUP ?= 2
 
 CPP_SRC := benchmark_pi.cpp
 CPP_BIN := benchmark_pi_cpp
