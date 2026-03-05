@@ -1,9 +1,10 @@
 CXX := g++
 CXXFLAGS := -O2 -std=c++17 -pthread
 PYTHON ?= python3
+CPU_COUNT := $(shell nproc 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)
 
 DIGITS ?= 7000
-WORKERS ?= 2
+WORKERS ?= $(CPU_COUNT)
 REPEATS ?= 6
 WARMUP ?= 2
 
@@ -12,7 +13,7 @@ CPP_BIN := benchmark_pi_cpp
 PY_SRC := benchmark_pi.py
 COMPARE_SRC := compare_benchmarks.py
 
-.PHONY: all cpp python-check test compare clean run-cpp run-py
+.PHONY: all cpp python-check test compare compare-single-core clean run-cpp run-py
 
 all: cpp
 
@@ -28,6 +29,9 @@ test: cpp python-check
 
 compare: cpp python-check
 	$(PYTHON) $(COMPARE_SRC) $(DIGITS) --workers $(WORKERS) --repeats $(REPEATS) --warmup $(WARMUP) --python-exe $(PYTHON) --python-script $(PY_SRC) --cpp-bin ./$(CPP_BIN)
+
+compare-single-core: cpp python-check
+	$(PYTHON) $(COMPARE_SRC) $(DIGITS) --workers 1 --repeats $(REPEATS) --warmup $(WARMUP) --python-exe $(PYTHON) --python-script $(PY_SRC) --cpp-bin ./$(CPP_BIN)
 
 run-cpp: cpp
 	./$(CPP_BIN) 5000 --mode Benchmark --workers 2

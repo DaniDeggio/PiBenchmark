@@ -20,12 +20,13 @@ Available quick targets:
 - `make cpp`: build the C++ binary (`benchmark_pi_cpp`)
 - `make python-check`: run Python syntax check (`py_compile`)
 - `make test`: run `cpp` + `python-check`
-- `make compare`: compare the same benchmark on Python and C++
+- `make compare`: compare the same benchmark on Python and C++ (default: all CPU cores)
+- `make compare-single-core`: compare using exactly 1 worker/core
 - `make run-cpp`: run an example C++ benchmark
 - `make run-py`: run an example Python benchmark
 - `make clean`: remove the C++ binary
 
-Default `make compare` values are: `DIGITS=7000`, `WORKERS=2`, `REPEATS=6`, `WARMUP=2`.
+Default `make compare` values are: `DIGITS=7000`, `WORKERS=<all logical CPU cores>`, `REPEATS=6`, `WARMUP=2`.
 
 Comparison example:
 
